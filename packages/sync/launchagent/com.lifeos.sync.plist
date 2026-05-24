@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Mac LaunchAgent — auto-starts the sync service at login.
+
+  Install:
+    cp com.lifeos.sync.plist ~/Library/LaunchAgents/
+    launchctl load ~/Library/LaunchAgents/com.lifeos.sync.plist
+
+  Uninstall:
+    launchctl unload ~/Library/LaunchAgents/com.lifeos.sync.plist
+    rm ~/Library/LaunchAgents/com.lifeos.sync.plist
+
+  Edit ProgramArguments[2] to match the actual path to index.js after `npm run build`.
+-->
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>com.lifeos.sync</string>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>/usr/local/bin/node</string>
+      <string>/Users/wbuie/Developer/LifeOS/packages/sync/dist/index.js</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+      <key>SUPABASE_URL</key>
+      <string>REPLACE_ME</string>
+      <key>SUPABASE_SERVICE_ROLE_KEY</key>
+      <string>REPLACE_ME</string>
+      <key>VAULT_PATH</key>
+      <string>/Users/wbuie/path/to/your/obsidian/vault</string>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/com.lifeos.sync.out.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/tmp/com.lifeos.sync.err.log</string>
+  </dict>
+</plist>
