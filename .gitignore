@@ -6,3 +6,4 @@ dist/
 ios/
 android/
 .DS_Store
+.mcp.json
