@@ -2,6 +2,18 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { ParsedNote } from './parser';
 import fs from 'fs';
 
+const EMBED_URL = process.env.EMBED_FUNCTION_URL ?? '';
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
+
+function fireEmbed(noteId: string): void {
+  if (!EMBED_URL) return;
+  fetch(EMBED_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${SERVICE_KEY}` },
+    body: JSON.stringify({ note_id: noteId }),
+  }).catch(err => console.error('[embed] failed:', err));
+}
+
 export async function upsertNote(
   supabase: SupabaseClient,
   note: ParsedNote,
@@ -32,6 +44,14 @@ export async function upsertNote(
   );
 
   if (error) throw new Error(`upsertNote(${note.filePath}): ${error.message}`);
+
+  // Fire-and-forget: embed the note asynchronously
+  const { data: row } = await supabase
+    .from('notes')
+    .select('id')
+    .eq('file_path', note.filePath)
+    .single();
+  if (row) fireEmbed(row.id);
 
   // Sync prayers row if this is a prayer note
   if (note.type === 'prayer') {

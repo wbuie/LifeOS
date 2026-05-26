@@ -39,24 +39,13 @@ export default function CaptureScreen() {
     setResult(null);
 
     try {
-      // TODO: Replace with Supabase Edge Function call once the function is deployed.
-      // For now, returns a mock classification so the UI flow is testable.
-      await new Promise(r => setTimeout(r, 800));
-      setResult({
-        type: mode === 'quick-prayer' ? 'prayer'
-          : mode === 'quick-person' ? 'person'
-          : mode === 'quick-task' ? 'task'
-          : 'note',
-        domain: 'personal',
-        destination: mode === 'quick-prayer' ? 'Cards/Prayers/'
-          : mode === 'quick-task' ? 'Atlas/Weekly Planning.md'
-          : 'Inbox/',
-        title: text.split(' ').slice(0, 5).join(' '),
-        frontmatter: { type: mode, status: 'active' },
-        body: text,
-        links: [],
-        reasoning: '(mock — Edge Function not yet deployed)',
+      const { data, error } = await supabase.functions.invoke('classify', {
+        body: { text, mode },
       });
+      if (error) throw error;
+      setResult(data as ClassificationResult);
+    } catch (err) {
+      Alert.alert('Classification failed', String(err));
     } finally {
       setClassifying(false);
     }
